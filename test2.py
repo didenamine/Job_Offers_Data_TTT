@@ -7,8 +7,9 @@ url = "https://www.tanitjobs.com/company/6376/think-tank-Business-Solutions"
 response = requests.get(url)
 conn=sqlite3.connect('JobOffersData.db')
 cursor = conn.cursor()
+translator = Translator()
+
 def extract_details_from_section(section):
-    translator = Translator()
     details_dict = {}
     details = section.find_all('dl')   
     for detail in details:
@@ -45,6 +46,11 @@ def extract_details_from_section(section):
 #######################################
 if response.status_code == 200:
     soup = BeautifulSoup(response.text, 'html.parser')
+    # Assuming you already have the BeautifulSoup object 'soup' containing the HTML content
+
+    # Find all elements with the class "media well listing-item listing-item__jobs"
+    job_articles = soup.find_all('article', class_='media well listing-item listing-item__jobs')
+
     #Getting how many job offers are they 'articles' 
     search_results_div = soup.find('div', class_='search-results')
     h3_elements = soup.find('h3').get_text()
@@ -56,10 +62,34 @@ if response.status_code == 200:
 
     if search_results_div:
         articles = search_results_div.find_all('article', class_='media')
-        numb =0
         for article in articles:
-            numb+=1
             link_div = article.find('div', class_='media-heading')
+            # Find the element with the class "listing-item__date" inside each job article
+            date_element = article.find('div', class_='listing-item__date')
+            job_date = None
+            
+            if date_element:
+                # Extract the text of the date element
+                job_date = date_element.text.strip()
+                
+            # Find the element with the class "link" inside each job article (job name)
+            job_name_element = article.find('a', class_='link')
+            job_name = None
+            
+            if job_name_element:
+                # Extract the text of the job name element
+                job_name_test = job_name_element.text.strip()
+                job_name=translator.translate(job_name_test, src='fr', dest='en').text
+                # Remove text inside parentheses and the parentheses themselves
+                job_name = re.sub(r'\(.*?\)', '', job_name)
+                # Replace multiple spaces with a single space
+                job_name = re.sub(r'\s+', ' ', job_name)
+                # Concatenate job title (lowercase) and job date to create the ID
+                job_id = job_name.lower().replace(' ', '') + job_date.replace('/', '')
+
+                
+            # Print the job name and date
+          
             
             if link_div:
                 link = link_div.find('a')
@@ -194,13 +224,12 @@ if response.status_code == 200:
                     JOBEXPERIENCE=None
                     JOBTECHSKILLS=None
                     JOBSOFTSKILLS =None
-                    'text'
+                    'text to use '
                     for i,j in  zip(elements ,inside_elements): 
                         
                         if  'education' or 'educations' in i.lower() :
-                            print('YES')
+                            
                             JOBEDUCATION = j 
-                       
 
 
 
@@ -215,12 +244,10 @@ if response.status_code == 200:
                     asap=""
                  
 
-                    data =[    numb,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME 
-                    ]
-
-              
+                    data =[    job_id,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME 
+                    ]    
                    
-"""                   cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
+                    cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
                     print('DONE...')
                     conn.commit()
-cursor.close()"""
+cursor.close()
