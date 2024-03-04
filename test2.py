@@ -226,27 +226,14 @@ if response.status_code == 200:
                     JOBEXPERIENCE=None
                     JOBTECHSKILLS=None
                     JOBSOFTSKILLS =None
-
+                  
                     for i,j in  zip(elements ,inside_elements): 
-                        if 'qualifications' or 'qualification' in i.lower() :
-                            JOBQUALIFICATIONS=j 
+                        
                         if  'education' or 'educations' in i.lower() :
+                            print('YES')
                             JOBEDUCATION = j 
-                        if  'experience' or 'experiences' in i.lower() :
-                            JOBEXPERIENCE = j
-                        if 'technical skills' or 'technical skill' in i.lower() :
-                            JOBTECHSKILLS=j 
-                        if  'soft skills'or 'soft skill' in i.lower() : 
-                            JOBSOFTSKILLS =j
-                    #print(JOBQUALIFICATIONS)
-                    #print(JOBEDUCATION)
-                    #print(JOBEXPERIENCE)
-                    #print(JOBSOFTSKILLS)
-                    #print(JOBTECHSKILLS)
-                    #print('###################')
-
-
-
+                       
+>>>>>>> 5824b08a892acf53dd22c68481a4d247515b3201
 
 
 
