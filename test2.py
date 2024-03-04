@@ -189,16 +189,29 @@ if response.status_code == 200:
                     last_index = details_offre_text.index(elements[-1]) + len(elements[-1])
                     last_substring = details_offre_text[last_index:].strip()
                     inside_elements.append(last_substring)
+                    JOBQUALIFICATIONS=None
+                    JOBEDUCATION = None 
+                    JOBEXPERIENCE=None
+                    JOBTECHSKILLS=None
+                    JOBSOFTSKILLS =None
 
-                    for i,j in zip(elements,inside_elements):
-                        print(i,' : \n')
-                        print(j.replace('\n',' '))
-                    print('##################')
-
-
-
-
-
+                    for i,j in  zip(elements ,inside_elements): 
+                        if 'qualifications' or 'qualification' in i.lower() :
+                            JOBQUALIFICATIONS=j 
+                        if  'education' or 'educations' in i.lower() :
+                            JOBEDUCATION = j 
+                        if  'experience' or 'experiences' in i.lower() :
+                            JOBEXPERIENCE = j
+                        if 'technical skills' or 'technical skill' in i.lower() :
+                            JOBTECHSKILLS=j 
+                        if  'soft skills'or 'soft skill' in i.lower() : 
+                            JOBSOFTSKILLS =j
+                    print(JOBQUALIFICATIONS)
+                    print(JOBEDUCATION)
+                    print(JOBEXPERIENCE)
+                    print(JOBSOFTSKILLS)
+                    print(JOBTECHSKILLS)
+                    print('###################')
 
 
 
