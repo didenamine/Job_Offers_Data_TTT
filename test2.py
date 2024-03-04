@@ -194,7 +194,7 @@ if response.status_code == 200:
                     JOBEXPERIENCE=None
                     JOBTECHSKILLS=None
                     JOBSOFTSKILLS =None
-                  
+                    'text'
                     for i,j in  zip(elements ,inside_elements): 
                         
                         if  'education' or 'educations' in i.lower() :
