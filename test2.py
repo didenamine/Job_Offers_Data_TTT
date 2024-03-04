@@ -232,8 +232,6 @@ if response.status_code == 200:
                         if  'education' or 'educations' in i.lower() :
                             print('YES')
                             JOBEDUCATION = j 
-                       
->>>>>>> 5824b08a892acf53dd22c68481a4d247515b3201
 
 
 
