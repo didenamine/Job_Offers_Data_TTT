@@ -179,13 +179,21 @@ if response.status_code == 200:
                     elements = [i.get_text() for i in strong]
                     details_offre_text = test.get_text()
                     "Elements is a list of the scrapped 'strong' parts of the selected job offer"
-                    inside_elements = ''
-                    for i in details_offre_text.split():
-                        print(i)
+                    inside_elements = []
+                    for i in range(len(elements)-1):
+                        start_index = details_offre_text.index(elements[i]) + len(elements[i])
+                        end_index = details_offre_text.index(elements[i+1])
+                        substring = details_offre_text[start_index:end_index].strip()
+                        inside_elements.append(substring)
+                        
+                    last_index = details_offre_text.index(elements[-1]) + len(elements[-1])
+                    last_substring = details_offre_text[last_index:].strip()
+                    inside_elements.append(last_substring)
 
-
-
-
+                    for i,j in zip(elements,inside_elements):
+                        print(i,' : \n')
+                        print(j.replace('\n',' '))
+                    print('##################')
 
 
 
