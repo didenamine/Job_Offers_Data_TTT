@@ -195,15 +195,13 @@ if response.status_code == 200:
                     JOBTECHSKILLS=None
                     JOBSOFTSKILLS =None
                     'text to use '
+                    
                     for i,j in  zip(elements ,inside_elements): 
                         
                         if  'education' or 'educations' in i.lower() :
                             print('YES')
                             JOBEDUCATION = j 
                        
-
-
-
 
 
                     JOBNAME = job_name
@@ -213,14 +211,12 @@ if response.status_code == 200:
                     date="data"
                     linkss=""
                     asap=""
-                 
 
-                    data =[    numb,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME 
+                    data =[  str(numb),JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME 
                     ]
 
               
                    
-"""                   cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
-                    print('DONE...')
+                    cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
                     conn.commit()
-cursor.close()"""
+cursor.close()
