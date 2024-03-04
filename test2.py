@@ -27,11 +27,6 @@ def extract_details_from_section(section):
         if translated_dt.lower() == 'desired type of job' :
             if translated_dd.lower() in ['sivp', 'cdd', 'cdi']:
                 translated_dd = translated_dd.upper()
-        ''' if translated_dt.lower().strip()== 'language':
-            translated_dd = translated_dd.split(' ')
-        if translated_dt.lower() == 'study level':
-            # Split the words for study level, keeping 'Bac' and '+3' together without spaces
-            translated_dd = [x.strip().replace(',', '') if x.strip() != 'Bac+3' else x.strip() for x in re.split(r'(Bac\s*\+\s*3)', translated_dd) if x.strip()]'''
         # Adjust key if needed and extract the number of open positions
         if translated_dt.lower() == 'vacant jobs':
             translated_dt = 'open positions'
@@ -50,13 +45,15 @@ def extract_details_from_section(section):
 #######################################
 if response.status_code == 200:
     soup = BeautifulSoup(response.text, 'html.parser')
-    
+    #Getting how many job offers are they 'articles' 
     search_results_div = soup.find('div', class_='search-results')
-    h3_elements = soup.find_all('h3')
-    h3_elements=str(h3_elements)
-    h3_elements= h3_elements[h3_elements.index('7'):h3_elements.index('</')]
-    
-   # print(h3_elements)
+    h3_elements = soup.find('h3').get_text()
+    JOBOFFERSNUM=0
+    for i in h3_elements:
+        if i.isnumeric():
+            JOBOFFERSNUM=int(i)
+            break 
+
     if search_results_div:
         articles = search_results_div.find_all('article', class_='media')
         numb =0
@@ -134,9 +131,9 @@ if response.status_code == 200:
                     if desc_part:
                         description= desc_part.get_text()
 
-            #Getting the Requirements of the job ...
+                    #Getting the Responsibilities of the job ...
                     div = job_link.find('div', class_='details-body__content content-text') # Replace 'example_div' with the actual class or id of the div
-                    Requirements = ""
+                    Responsibilities = ""
                     x=str(div.find_all('strong'))
                     x=re.findall(r'<strong>(.*?)</strong>', x)
                     x = [tag.strip().rstrip(':') for tag in x]
@@ -170,24 +167,53 @@ if response.status_code == 200:
                                 if i in div_content:found=[True,i]
                         if found[0]==True :
                                 if next_elem_after_req==None:
-                                    Requirements=div_content[div_content.index(found[1])::]
+                                    Responsibilities=div_content[div_content.index(found[1])::]
                                 else :
-                                    Requirements=div_content[div_content.index(found[1]):div_content.lower().index(next_elem_after_req)]
+                                    Responsibilities=div_content[div_content.index(found[1]):div_content.lower().index(next_elem_after_req)]
+                    
+                    #Getting the Exigences de l'emploi in this part 
+                    #The Exigence => this part is hard because it never stays the same as all the article 
+                    #So  we have to distinguish the parts of it and gather each one then collect them in the same place
+                    test = job_link.find('div',class_='detail-offre')
+                    strong = test.find_all('strong')
+                    elements = [i.get_text() for i in strong]
+                    details_offre_text = test.get_text()
+                    "Elements is a list of the scrapped 'strong' parts of the selected job offer"
+                    inside_elements = ''
+                    for i in details_offre_text.split():
+                        print(i)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                     JOBNAME = job_name
                     JOBDESCRIPTION = description
-                    JOBREQUIREMENTS =Requirements
+                    JOBRESPONSIBILITIES =Responsibilities
                     offers="offers"
                     date="data"
                     linkss=""
                     asap=""
                  
-                    data =[    numb,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBREQUIREMENTS,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME 
+
+                    data =[    numb,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME 
                     ]
 
               
                    
-                    cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
+"""                   cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
                     print('DONE...')
                     conn.commit()
-cursor.close()
+cursor.close()"""
