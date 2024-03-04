@@ -64,32 +64,6 @@ if response.status_code == 200:
         articles = search_results_div.find_all('article', class_='media')
         for article in articles:
             link_div = article.find('div', class_='media-heading')
-            # Find the element with the class "listing-item__date" inside each job article
-            date_element = article.find('div', class_='listing-item__date')
-            job_date = None
-            
-            if date_element:
-                # Extract the text of the date element
-                job_date = date_element.text.strip()
-                
-            # Find the element with the class "link" inside each job article (job name)
-            job_name_element = article.find('a', class_='link')
-            job_name = None
-            
-            if job_name_element:
-                # Extract the text of the job name element
-                job_name_test = job_name_element.text.strip()
-                job_name=translator.translate(job_name_test, src='fr', dest='en').text
-                # Remove text inside parentheses and the parentheses themselves
-                job_name = re.sub(r'\(.*?\)', '', job_name)
-                # Replace multiple spaces with a single space
-                job_name = re.sub(r'\s+', ' ', job_name)
-                # Concatenate job title (lowercase) and job date to create the ID
-                job_id = job_name.lower().replace(' ', '') + job_date.replace('/', '')
-
-                
-            # Print the job name and date
-          
             
             if link_div:
                 link = link_div.find('a')
