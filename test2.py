@@ -3,11 +3,13 @@ from bs4 import BeautifulSoup
 import re
 import sqlite3
 from googletrans import Translator
+num = 0
 url = "https://www.tanitjobs.com/company/6376/think-tank-Business-Solutions"
 response = requests.get(url)
 conn=sqlite3.connect('JobOffersData.db')
 cursor = conn.cursor()
 translator = Translator()
+
 
 def extract_details_from_section(section):
     details_dict = {}
@@ -88,10 +90,6 @@ if response.status_code == 200:
                 job_id = job_name.lower().replace(' ', '') + job_date.replace('/', '')
 
                 
-            # Print the job name and date
-            print("Job:", job_name)
-            print("Date:", job_date)
-            print("Id:", job_id)
             
             if link_div:
                 link = link_div.find('a')
@@ -100,8 +98,8 @@ if response.status_code == 200:
                     link_url = link.get('href')
                     #Link to open the job descriptions 
                     job_name = link.get_text(strip=True)
-                    #Prints the job names scraped from the articles 
-                    #print("\n\n",'#######',job_name,"#########","\n\n")
+                    
+
                     job_link = BeautifulSoup(requests.get(link_url).text,'html.parser')
                     job_details_section = job_link.find('div', class_='infos_job_details')
                     JOBOPENPOSITIONS=0
@@ -114,7 +112,7 @@ if response.status_code == 200:
                     
                     if job_details_section:
                         job_details = extract_details_from_section(job_details_section)
-                        #print(job_details)
+                       
                         
                         # Check if each key exists in the job_details dictionary and assign its value to the corresponding variable
                         if 'open positions' in job_details:
@@ -227,44 +225,42 @@ if response.status_code == 200:
                     JOBTECHSKILLS=None
                     JOBSOFTSKILLS =None
 
-                    for i,j in  zip(elements ,inside_elements): 
-                        if 'qualifications' or 'qualification' in i.lower() :
-                            JOBQUALIFICATIONS=j 
-                        if  'education' or 'educations' in i.lower() :
-                            JOBEDUCATION = j 
-                        if  'experience' or 'experiences' in i.lower() :
-                            JOBEXPERIENCE = j
-                        if 'technical skills' or 'technical skill' in i.lower() :
-                            JOBTECHSKILLS=j 
-                        if  'soft skills'or 'soft skill' in i.lower() : 
-                            JOBSOFTSKILLS =j
-                    #print(JOBQUALIFICATIONS)
-                    #print(JOBEDUCATION)
-                    #print(JOBEXPERIENCE)
-                    #print(JOBSOFTSKILLS)
-                    #print(JOBTECHSKILLS)
-                    #print('###################')
+                    
+
+                    
+                    i = 0
+                    while i<len(elements): 
+                            
+                            x=elements[i].replace(':','')
+                            if "education" in x:x='education'
+
+                            if x.lower().replace(':','')=="education" or x.lower().replace(':','')=="éducation" :JOBEDUCATION=inside_elements[i]
+                            if x.lower().replace(':','')=="qualifications":JOBQUALIFICATIONS=inside_elements[i]
+                            if x.lower().replace(':','')=="experience" or x.lower().replace(':','')=="expérience" :JOBEXPERIENCE=inside_elements[i]
+                            if x.lower().replace(':','')=="technical skills" or x.lower().replace(':','')=="compétences techniques":JOBTECHSKILLS=inside_elements[i]
+                            if x.lower().replace(':','')=="soft skills" or x.lower().replace(':','')=="compétences requises" :JOBSOFTSKILLS=inside_elements[i]
+                            i+=1
 
 
-
-
-
-
-
-
+                    
                     JOBNAME = job_name
                     JOBDESCRIPTION = description
                     JOBRESPONSIBILITIES =Responsibilities
-                    offers="offers"
+                    offers="Motivating remuneration.Participation in large-scale projects for the European market.Integration into a young and motivated team.Flexible working hoursCareer and stability"
                     date="data"
                     linkss=""
-                    asap=""
+                    asap="immediate/ASAP"
                  
-
-                    data =[    job_id,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME 
+                    #Here we putted all the informations inside data and then we checked if the article already exists in the data if it is then it won't 
+                    #Put it other wise it ll be inserted 
+                    data =[    
+                        job_id,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME,JOBEDUCATION,JOBEXPERIENCE,JOBQUALIFICATIONS,JOBTECHSKILLS,JOBSOFTSKILLS
                     ]    
-                   
-"""                   cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
-                    print('DONE...')
-                    conn.commit()
-cursor.close()"""
+                    cursor.execute('SELECT JOB_ID FROM JobOffers WHERE JOB_ID =?',(job_id,))
+                    d=cursor.fetchone()
+                    d=d[0]
+                    if d :pass
+                    else :
+                      cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME,JOB_EDUCATION,JOB_EXPERIENCE,JOB_QUALIFICATIONS,JOB_TECH_SKILLS,JOB_SOFT_SKILLS) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
+                      conn.commit()
+cursor.close()
