@@ -3,11 +3,13 @@ from bs4 import BeautifulSoup
 import re
 import sqlite3
 from googletrans import Translator
+from datetime import date,datetime
 num = 0
 url = "https://www.tanitjobs.com/company/6376/think-tank-Business-Solutions"
 response = requests.get(url)
 conn=sqlite3.connect('JobOffersData.db')
 cursor = conn.cursor()
+cursor.execute("DELETE FROM joboffers")
 translator = Translator()
 SCRAPED_ARTICLESS = []
 def extract_details_from_section(section):
@@ -100,6 +102,15 @@ if response.status_code == 200:
                     
 
                     job_link = BeautifulSoup(requests.get(link_url).text,'html.parser')
+
+                    # Extract the expiration date
+                    expiration_date_title = job_link.find('h3', class_='details-body__title', string="Date d'expiration")
+                    if expiration_date_title:
+                        expiration_date = expiration_date_title.find_next_sibling('div', class_='details-body__content')
+                        if expiration_date:
+                            expiration_date = expiration_date.text.strip()
+                            print("Expiration Date:", expiration_date)
+
                     job_details_section = job_link.find('div', class_='infos_job_details')
                     JOBOPENPOSITIONS=0
                     JOBTYPE =''
@@ -248,14 +259,14 @@ if response.status_code == 200:
                     JOBDESCRIPTION = description
                     JOBRESPONSIBILITIES =Responsibilities
                     offers="Motivating remuneration.Participation in large-scale projects for the European market.Integration into a young and motivated team.Flexible working hoursCareer and stability"
-                    date="data"
+                    #date="data"
                     linkss=""
                     asap="immediate/ASAP"
 
                     #Here we putted all the informations inside data and then we checked if the article already exists in the data if it is then it won't 
                     #Put it other wise it ll be inserted 
                     data =[    
-                        job_id,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME,JOBEDUCATION,JOBEXPERIENCE,JOBQUALIFICATIONS,JOBTECHSKILLS,JOBSOFTSKILLS,Article_Ava
+                        job_id,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,expiration_date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME,JOBEDUCATION,JOBEXPERIENCE,JOBQUALIFICATIONS,JOBTECHSKILLS,JOBSOFTSKILLS,Article_Ava
                     ]    
                     SCRAPED_ARTICLESS.append(job_name)
                     check_articleAVA_from_articles_names =[]
@@ -271,7 +282,7 @@ if response.status_code == 200:
                       conn.commit()
 
 
-""""here we check if the Article still available or not """
+#here we check if the Article still available or not
 cursor.execute('SELECT Article_Ava,JOB_NAME From JobOffers')
 
 Article_infos =cursor.fetchall()
@@ -285,5 +296,24 @@ for i in Article_infos_names:
     if i not in SCRAPED_ARTICLESS:
       cursor.execute('UPDATE joboffers SET Article_Ava = ? WHERE JOB_NAME = ?', (0, i))
       conn.commit()
+
+# Get today's date
+today = datetime.today().strftime('%d/%m/%Y')
+# Update JOB_EXP_DATE to today's date for rows with JOB_TYPE 'Permanent' to test
+#cursor.execute("UPDATE joboffers SET JOB_EXP_DATE = ? WHERE JOB_TYPE = 'Permanent'", (today,))
+
+# Select all lines where JOB_EXP_DATE is today
+cursor.execute("SELECT * FROM joboffers WHERE JOB_EXP_DATE = ?", (today,))
+rows = cursor.fetchall()
+
+# Update Article_Ava to 0 for the selected rows
+for row in rows:
+    print(today,row[0],row[6])
+    cursor.execute("UPDATE joboffers SET Article_Ava = ? WHERE JOB_ID = ?", (0, row[0]))
+
+# Commit the changes
+conn.commit()
+# Close the cursor
 cursor.close()
+# Close the connection
 conn.close()
