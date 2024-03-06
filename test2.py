@@ -9,8 +9,7 @@ response = requests.get(url)
 conn=sqlite3.connect('JobOffersData.db')
 cursor = conn.cursor()
 translator = Translator()
-
-
+SCRAPED_ARTICLESS = []
 def extract_details_from_section(section):
     details_dict = {}
     details = section.find_all('dl')   
@@ -240,9 +239,11 @@ if response.status_code == 200:
                             if x.lower().replace(':','')=="technical skills" or x.lower().replace(':','')=="compétences techniques":JOBTECHSKILLS=inside_elements[i]
                             if x.lower().replace(':','')=="soft skills" or x.lower().replace(':','')=="compétences requises" :JOBSOFTSKILLS=inside_elements[i]
                             i+=1
-
-
                     
+                
+                    """Article ava tells us if the job is still there or no 1 if it s 0 otherwise """
+                    Article_Ava =1
+
                     JOBNAME = job_name
                     JOBDESCRIPTION = description
                     JOBRESPONSIBILITIES =Responsibilities
@@ -250,17 +251,39 @@ if response.status_code == 200:
                     date="data"
                     linkss=""
                     asap="immediate/ASAP"
-                 
+
                     #Here we putted all the informations inside data and then we checked if the article already exists in the data if it is then it won't 
                     #Put it other wise it ll be inserted 
                     data =[    
-                        job_id,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME,JOBEDUCATION,JOBEXPERIENCE,JOBQUALIFICATIONS,JOBTECHSKILLS,JOBSOFTSKILLS
+                        job_id,JOBTYPE,JOBLANGUAGE,JOBDESCRIPTION,JOBRESPONSIBILITIES,offers,date,JOBLANGUAGE,linkss,asap,JOBSTUDYLEVEL,JOBPROPOSEDREM,JOBOPENPOSITIONS,JOBEXP,JOBGENDER,JOBNAME,JOBEDUCATION,JOBEXPERIENCE,JOBQUALIFICATIONS,JOBTECHSKILLS,JOBSOFTSKILLS,Article_Ava
                     ]    
+                    SCRAPED_ARTICLESS.append(job_name)
+                    check_articleAVA_from_articles_names =[]
+                    
                     cursor.execute('SELECT JOB_ID FROM JobOffers WHERE JOB_ID =?',(job_id,))
                     d=cursor.fetchone()
-                    d=d[0]
-                    if d :pass
+                    
+                    if d!=None:
+
+                        pass
                     else :
-                      cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME,JOB_EDUCATION,JOB_EXPERIENCE,JOB_QUALIFICATIONS,JOB_TECH_SKILLS,JOB_SOFT_SKILLS) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
+                      cursor.execute('INSERT INTO  JobOffers(JOB_ID,JOB_TYPE,JOB_LANG,JOB_DESC,JOB_REQ,JOB_OFFERS,JOB_EXP_DATE,JOB_DESC_LANGUAGE,JOB_LINK,JOB_AVA,JOB_STUDY,JOB_PROPOSED_REN,JOB_POSITIONS,JOB_EXP,JOB_GENDRE,JOB_NAME,JOB_EDUCATION,JOB_EXPERIENCE,JOB_QUALIFICATIONS,JOB_TECH_SKILLS,JOB_SOFT_SKILLS,Article_Ava) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',data)                                  
                       conn.commit()
+
+
+""""here we check if the Article still available or not """
+cursor.execute('SELECT Article_Ava,JOB_NAME From JobOffers')
+
+Article_infos =cursor.fetchall()
+
+Article_infos= [[i[0],i[1]] for i in Article_infos]
+Article_infos_names=[i[1]for i in Article_infos]
+
+
+
+for i in Article_infos_names:
+    if i not in SCRAPED_ARTICLESS:
+      cursor.execute('UPDATE joboffers SET Article_Ava = ? WHERE JOB_NAME = ?', (0, i))
+      conn.commit()
 cursor.close()
+conn.close()

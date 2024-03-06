@@ -1,3 +1,12 @@
-Writing varbiables and functions here ///
 
-JOBOFFERSNUM : number of job articles -> int 
+
+
+we can use python 'time' and "schedule" libraries to make the program up to date each day 
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-> adding a new col in the data base in order to check if the article is still there or no Article_AVA(AVAILABLE?NOTAVAILABLE)
+-> We have to make a function to extract data and update them everyday for that Task 
+--------->Taks done and the expired work get the value 0 now the problem is we have to make the where clause in that update query depending on an other aspect 
+because the job offer name can be offerd again after being deleted 
+
