@@ -9,7 +9,8 @@ url = "https://www.tanitjobs.com/company/6376/think-tank-Business-Solutions"
 response = requests.get(url)
 conn=sqlite3.connect('JobOffersData.db')
 cursor = conn.cursor()
-cursor.execute("DELETE FROM joboffers")
+
+
 translator = Translator()
 SCRAPED_ARTICLESS = []
 def extract_details_from_section(section):
@@ -292,7 +293,7 @@ Article_infos_names=[[i[1],i[2]] for i in Article_infos]
 
 
 for i in Article_infos_names:
-    if i[0] not in SCRAPED_ARTICLESS[1:5]:
+    if i[0] not in SCRAPED_ARTICLESS:
       cursor.execute('UPDATE joboffers SET Article_Ava = ? WHERE JOB_ID = ?', (0, i[1]))
       conn.commit()
 
