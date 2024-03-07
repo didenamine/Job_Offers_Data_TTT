@@ -109,7 +109,7 @@ if response.status_code == 200:
                         expiration_date = expiration_date_title.find_next_sibling('div', class_='details-body__content')
                         if expiration_date:
                             expiration_date = expiration_date.text.strip()
-                            print("Expiration Date:", expiration_date)
+                          
 
                     job_details_section = job_link.find('div', class_='infos_job_details')
                     JOBOPENPOSITIONS=0
@@ -283,37 +283,28 @@ if response.status_code == 200:
 
 
 #here we check if the Article still available or not
-cursor.execute('SELECT Article_Ava,JOB_NAME From JobOffers')
+cursor.execute('SELECT Article_Ava,JOB_NAME,JOB_ID From JobOffers')
 
 Article_infos =cursor.fetchall()
 
-Article_infos= [[i[0],i[1]] for i in Article_infos]
-Article_infos_names=[i[1]for i in Article_infos]
-
+Article_infos= [[i[0],i[1],i[2]] for i in Article_infos]
+Article_infos_names=[[i[1],i[2]] for i in Article_infos]
 
 
 for i in Article_infos_names:
-    if i not in SCRAPED_ARTICLESS:
-      cursor.execute('UPDATE joboffers SET Article_Ava = ? WHERE JOB_NAME = ?', (0, i))
+    if i[0] not in SCRAPED_ARTICLESS[1:5]:
+      cursor.execute('UPDATE joboffers SET Article_Ava = ? WHERE JOB_ID = ?', (0, i[1]))
       conn.commit()
 
-# Get today's date
-today = datetime.today().strftime('%d/%m/%Y')
-# Update JOB_EXP_DATE to today's date for rows with JOB_TYPE 'Permanent' to test
-#cursor.execute("UPDATE joboffers SET JOB_EXP_DATE = ? WHERE JOB_TYPE = 'Permanent'", (today,))
 
-# Select all lines where JOB_EXP_DATE is today
+
+today = datetime.today().strftime('%d/%m/%Y')
 cursor.execute("SELECT * FROM joboffers WHERE JOB_EXP_DATE = ?", (today,))
 rows = cursor.fetchall()
 
-# Update Article_Ava to 0 for the selected rows
 for row in rows:
-    print(today,row[0],row[6])
     cursor.execute("UPDATE joboffers SET Article_Ava = ? WHERE JOB_ID = ?", (0, row[0]))
 
-# Commit the changes
 conn.commit()
-# Close the cursor
 cursor.close()
-# Close the connection
 conn.close()
